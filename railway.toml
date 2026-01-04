@@ -1,8 +1,3 @@
-[build]
-builder = "DOCKERFILE"
-
 [deploy]
-startCommand = "./titan-ledger"
 healthcheckPath = "/health"
 healthcheckTimeout = 100
-restartPolicyType = "ON_FAILURE"
