@@ -1,6 +1,6 @@
 module github.com/JullMol/titan-ledger
 
-go 1.25.5
+go 1.24.0
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.10
