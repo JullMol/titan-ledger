@@ -25,9 +25,14 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName, cfg.DBSSLMode,
-	)
+	// Use DATABASE_URL if available (Railway standard), otherwise build from parts
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		dsn = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+			cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName, cfg.DBSSLMode,
+		)
+	}
+	log.Printf("Connecting to database...")
 
 	ctx := context.Background()
 	dbPool, err := pgxpool.New(ctx, dsn)
@@ -73,9 +78,13 @@ func main() {
 	app.Static("/", "./static")
 
 	go func() {
-		port := fmt.Sprintf(":%s", cfg.ServerPort)
+		// Use PORT from env (Railway standard), fallback to config
+		port := os.Getenv("PORT")
+		if port == "" {
+			port = cfg.ServerPort
+		}
 		log.Printf("Server running on port %s", port)
-		if err := app.Listen(port); err != nil {
+		if err := app.Listen(":" + port); err != nil {
 			log.Panic(err)
 		}
 	}()
