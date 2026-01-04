@@ -24,6 +24,9 @@ RUN apk --no-cache add ca-certificates
 # Copy binary from builder
 COPY --from=builder /app/titan-ledger .
 
+# Copy static files for API playground
+COPY --from=builder /app/static ./static
+
 # Copy migrations for database setup
 COPY --from=builder /app/migrations ./migrations
 
