@@ -150,20 +150,32 @@ No external tools needed - everything works in your browser!
 
 ## Deployment
 
-### Deploy to Render.com (Free)
+### Deploy to Railway.app (Free Trial)
 
 1. Push code to GitHub
-2. Go to [render.com](https://render.com) and connect your repository
-3. Click "New Blueprint" and select your repo
-4. Render will auto-detect `render.yaml` and create:
-   - PostgreSQL database (free tier)
-   - Go web service
+2. Sign up at [railway.app](https://railway.app) using GitHub
+3. Click "New Project" → "Deploy from GitHub repo" → Select `titan-ledger`
+4. Railway will automatically build using the Dockerfile
+5. Add PostgreSQL Database:
+   - In your project view, click "New" → "Database" → "PostgreSQL"
+   - Wait for it to deploy
 
-5. After deployment, run migrations:
-   - Go to your database settings in Render
-   - Connect via shell and run the SQL files from `/migrations`
+6. Configure Environment Variables:
+   - Go to your `titan-ledger` service → "Settings" → "Variables"
+   - Add the following variables (get values from PostgreSQL service "Connect" tab):
+     - `DB_HOST`: (e.g., containers-us-west-1.railway.app)
+     - `DB_PORT`: (e.g., 5432)
+     - `DB_USER`: postgres
+     - `DB_PASSWORD`: (from Railway)
+     - `DB_NAME`: railway
+     - `DB_SSLMODE`: require
+     - `SERVER_PORT`: 8080
 
-Your app will be live at `https://your-app.onrender.com`
+7. Run Migrations:
+   - Install Railway CLI (or use any SQL client like DBeaver/PgAdmin)
+   - Connect to the remote database and run the SQL files from `/migrations`
+
+Your app will be live at the provided Railway domain!
 
 ## Design Decisions
 
