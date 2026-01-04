@@ -1,0 +1,16 @@
+# Docker
+.env
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build
+/titan-ledger
+*.exe
+
+# Test
+coverage.out

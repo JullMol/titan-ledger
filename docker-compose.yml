@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: titan_postgres
+    environment:
+      - POSTGRES_USER=titan_user
+      - POSTGRES_PASSWORD=titan_password
+      - POSTGRES_DB=titan_ledger
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

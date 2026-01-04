@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titan Ledger - API Playground</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+            border-radius: 1rem;
+        }
+        
+        header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        header p { opacity: 0.9; font-size: 1.1rem; }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .card h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+        
+        .method {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+        }
+        
+        .method.post { background: var(--success); color: white; }
+        .method.get { background: var(--primary); color: white; }
+        
+        .endpoint {
+            font-family: monospace;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        textarea { resize: vertical; min-height: 80px; }
+        
+        button {
+            width: 100%;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1.25rem;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+        
+        button:hover { opacity: 0.9; }
+        button:active { transform: scale(0.98); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .response {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-dark);
+            border-radius: 0.5rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .response.show { display: block; }
+        .response.success { border-left: 3px solid var(--success); }
+        .response.error { border-left: 3px solid var(--error); }
+        
+        .quick-start {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-start h3 { margin-bottom: 1rem; }
+        
+        .steps {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .step {
+            flex: 1;
+            min-width: 200px;
+            padding: 1rem;
+            background: var(--bg-dark);
+            border-radius: 0.5rem;
+        }
+        
+        .step-number {
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .step h4 { font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .step p { font-size: 0.8rem; color: var(--text-muted); }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        footer a { color: var(--primary); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Titan Ledger</h1>
+            <p>High-Performance Distributed Ledger System</p>
+            <span class="badge">Built with Go + Hexagonal Architecture</span>
+        </header>
+        
+        <div class="quick-start">
+            <h3>🚀 Quick Start Guide</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4>Create Wallets</h4>
+                    <p>Start by creating two wallets for sender and receiver</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4>Check Balances</h4>
+                    <p>Use wallet IDs from step 1 to view balances</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4>Make Transfer</h4>
+                    <p>Transfer funds between wallets atomically</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Create Wallet -->
+            <div class="card">
+                <h3>
+                    <span class="method post">POST</span>
+                    Create Wallet
+                </h3>
+                <span class="endpoint">/api/v1/wallets</span>
+                
+                <label for="userId">User ID</label>
+                <input type="text" id="userId" placeholder="e.g., user123">
+                
+                <button onclick="createWallet()">Create Wallet</button>
+                <div id="createWalletResponse" class="response"></div>
+            </div>
+
+            <!-- Get Balance -->
+            <div class="card">
+                <h3>
+                    <span class="method get">GET</span>
+                    Get Wallet Balance
+                </h3>
+                <span class="endpoint">/api/v1/wallets/:id</span>
+                
+                <label for="walletId">Wallet ID</label>
+                <input type="text" id="walletId" placeholder="Paste wallet ID from create response">
+                
+                <button onclick="getBalance()">Get Balance</button>
+                <div id="getBalanceResponse" class="response"></div>
+            </div>
+
+            <!-- Transfer -->
+            <div class="card" style="grid-column: span 2;">
+                <h3>
+                    <span class="method post">POST</span>
+                    Transfer Funds
+                </h3>
+                <span class="endpoint">/api/v1/transfer</span>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label for="fromWallet">From Wallet ID</label>
+                        <input type="text" id="fromWallet" placeholder="Sender wallet ID">
+                    </div>
+                    <div>
+                        <label for="toWallet">To Wallet ID</label>
+                        <input type="text" id="toWallet" placeholder="Receiver wallet ID">
+                    </div>
+                    <div>
+                        <label for="amount">Amount (in cents, e.g., 50000 = Rp 500)</label>
+                        <input type="number" id="amount" placeholder="50000">
+                    </div>
+                    <div>
+                        <label for="referenceId">Reference ID (unique per transaction)</label>
+                        <input type="text" id="referenceId" placeholder="txn-001">
+                    </div>
+                </div>
+                
+                <button onclick="transfer()">Execute Transfer</button>
+                <div id="transferResponse" class="response"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with ❤️ using <strong>Hexagonal Architecture</strong></p>
+            <p style="margin-top: 0.5rem;">
+                <a href="https://github.com/JullMol/titan-ledger" target="_blank">View Source Code →</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE = '';  // Same-origin, no prefix needed
+
+        async function makeRequest(method, endpoint, body = null) {
+            const options = {
+                method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (body) options.body = JSON.stringify(body);
+            
+            try {
+                const res = await fetch(API_BASE + endpoint, options);
+                const data = await res.json();
+                return { success: res.ok, data };
+            } catch (err) {
+                return { success: false, data: { error: err.message } };
+            }
+        }
+
+        function showResponse(elementId, result) {
+            const el = document.getElementById(elementId);
+            el.textContent = JSON.stringify(result.data, null, 2);
+            el.className = 'response show ' + (result.success ? 'success' : 'error');
+        }
+
+        async function createWallet() {
+            const userId = document.getElementById('userId').value;
+            if (!userId) return alert('Please enter a User ID');
+            
+            const result = await makeRequest('POST', '/api/v1/wallets', { user_id: userId });
+            showResponse('createWalletResponse', result);
+            
+            // Auto-fill wallet ID for convenience
+            if (result.success && result.data.ID) {
+                document.getElementById('walletId').value = result.data.ID;
+            }
+        }
+
+        async function getBalance() {
+            const walletId = document.getElementById('walletId').value;
+            if (!walletId) return alert('Please enter a Wallet ID');
+            
+            const result = await makeRequest('GET', '/api/v1/wallets/' + walletId);
+            showResponse('getBalanceResponse', result);
+        }
+
+        async function transfer() {
+            const fromWallet = document.getElementById('fromWallet').value;
+            const toWallet = document.getElementById('toWallet').value;
+            const amount = parseInt(document.getElementById('amount').value);
+            const referenceId = document.getElementById('referenceId').value;
+            
+            if (!fromWallet || !toWallet || !amount || !referenceId) {
+                return alert('Please fill all transfer fields');
+            }
+            
+            const result = await makeRequest('POST', '/api/v1/transfer', {
+                from_wallet_id: fromWallet,
+                to_wallet_id: toWallet,
+                amount: amount,
+                reference_id: referenceId
+            });
+            showResponse('transferResponse', result);
+        }
+    </script>
+</body>
+</html>
