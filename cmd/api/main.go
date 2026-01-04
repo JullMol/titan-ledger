@@ -46,6 +46,12 @@ func main() {
 	}
 	log.Println("Database Connected!")
 
+	// Auto-migrate: create tables if not exist
+	if err := runMigrations(ctx, dbPool); err != nil {
+		log.Fatalf("Migration failed: %v\n", err)
+	}
+	log.Println("Migrations completed!")
+
 	walletRepo := postgres.NewWalletRepository(dbPool)
 	txRepo := postgres.NewTransactionRepository(dbPool)
 	txManager := postgres.NewPgTxManager(dbPool)
@@ -104,4 +110,34 @@ func main() {
 	}
 
 	log.Println("Server shutdown gracefully!")
+}
+
+// runMigrations creates database tables if they don't exist
+func runMigrations(ctx context.Context, pool *pgxpool.Pool) error {
+	migrations := `
+		CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+		CREATE TABLE IF NOT EXISTS wallets (
+			id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+			user_id VARCHAR(255) NOT NULL,
+			balance BIGINT NOT NULL DEFAULT 0 CHECK (balance >= 0),
+			currency VARCHAR(3) NOT NULL DEFAULT 'IDR',
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+		);
+
+		CREATE TABLE IF NOT EXISTS transactions (
+			id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+			wallet_id UUID NOT NULL REFERENCES wallets(id),
+			amount BIGINT NOT NULL,
+			reference_id VARCHAR(255) NOT NULL,
+			type VARCHAR(20) NOT NULL,
+			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+		);
+
+		CREATE INDEX IF NOT EXISTS idx_transactions_wallet_id ON transactions(wallet_id);
+		CREATE UNIQUE INDEX IF NOT EXISTS idx_transactions_reference_unique ON transactions(reference_id);
+	`
+	_, err := pool.Exec(ctx, migrations)
+	return err
 }
