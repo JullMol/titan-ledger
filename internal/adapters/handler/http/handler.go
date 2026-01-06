@@ -1,8 +1,8 @@
 package http
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"github.com/JullMol/titan-ledger/internal/core/ports"
+	"github.com/gofiber/fiber/v2"
 )
 
 type TitanHandler struct {
@@ -75,4 +75,24 @@ func (h *TitanHandler) Transfer(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"status": "success", "message": "Transfer processed"})
+}
+
+// Deposit handles POST /deposit
+func (h *TitanHandler) Deposit(c *fiber.Ctx) error {
+	type DepositPayload struct {
+		WalletID string `json:"wallet_id"`
+		Amount   int64  `json:"amount"`
+	}
+
+	var p DepositPayload
+	if err := c.BodyParser(&p); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid payload"})
+	}
+
+	wallet, err := h.walletService.Deposit(c.Context(), p.WalletID, p.Amount)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{"status": "success", "wallet": wallet})
 }

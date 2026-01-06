@@ -221,16 +221,16 @@
                 <div class="step">
                     <div class="step-number">1</div>
                     <h4>Create Wallets</h4>
-                    <p>Start by creating two wallets for sender and receiver</p>
+                    <p>Create two wallets for sender and receiver</p>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
-                    <h4>Check Balances</h4>
-                    <p>Use wallet IDs from step 1 to view balances</p>
+                    <h4>Deposit Funds</h4>
+                    <p>Add balance to sender wallet first</p>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <h4>Make Transfer</h4>
+                    <h4>Transfer</h4>
                     <p>Transfer funds between wallets atomically</p>
                 </div>
             </div>
@@ -250,6 +250,24 @@
                 
                 <button onclick="createWallet()">Create Wallet</button>
                 <div id="createWalletResponse" class="response"></div>
+            </div>
+
+            <!-- Deposit -->
+            <div class="card">
+                <h3>
+                    <span class="method post">POST</span>
+                    Deposit Funds
+                </h3>
+                <span class="endpoint">/api/v1/deposit</span>
+                
+                <label for="depositWalletId">Wallet ID</label>
+                <input type="text" id="depositWalletId" placeholder="Paste wallet ID">
+                
+                <label for="depositAmount">Amount (e.g., 100000 = Rp 1.000)</label>
+                <input type="number" id="depositAmount" placeholder="100000">
+                
+                <button onclick="deposit()">Deposit Funds</button>
+                <div id="depositResponse" class="response"></div>
             </div>
 
             <!-- Get Balance -->
@@ -342,7 +360,20 @@
             // Auto-fill wallet ID for convenience
             if (result.success && result.data.ID) {
                 document.getElementById('walletId').value = result.data.ID;
+                document.getElementById('depositWalletId').value = result.data.ID;
             }
+        }
+
+        async function deposit() {
+            const walletId = document.getElementById('depositWalletId').value;
+            const amount = parseInt(document.getElementById('depositAmount').value);
+            if (!walletId || !amount) return alert('Please enter Wallet ID and Amount');
+            
+            const result = await makeRequest('POST', '/api/v1/deposit', {
+                wallet_id: walletId,
+                amount: amount
+            });
+            showResponse('depositResponse', result);
         }
 
         async function getBalance() {

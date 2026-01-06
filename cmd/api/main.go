@@ -70,6 +70,7 @@ func main() {
 	api := app.Group("/api/v1")
 	api.Post("/wallets", handler.CreateWallet)
 	api.Get("/wallets/:id", handler.GetBalance)
+	api.Post("/deposit", handler.Deposit)
 	api.Post("/transfer", handler.Transfer)
 
 	// Health check endpoint for container orchestration
